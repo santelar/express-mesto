@@ -1,10 +1,9 @@
-const { static } = require('express');
-const express = require ('express');
+const express = require('express');
 const path = require('path');
-const usersRouter= require('./routes/users.js');
-const cardsRouter= require('./routes/cards.js');
-const app = express();
+const usersRouter = require('./routes/users.js');
+const cardsRouter = require('./routes/cards.js');
 
+const app = express();
 
 const PORT = 3000;
 
@@ -16,6 +15,5 @@ app.use('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`App starting on port ${PORT}`);
-
+  console.log(`App starting on port ${PORT}`);
 });

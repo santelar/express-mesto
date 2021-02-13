@@ -1,14 +1,14 @@
 {
   "name": "express-mesto",
   "version": "1.0.0",
-  "description": "",
+  "description": "Mesto - back-end on Node.js",
   "main": "index.js",
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Alexander Pobonarenko",
   "license": "ISC",
   "dependencies": {
     "eslint-config-airbnb-base": "^14.2.1",
