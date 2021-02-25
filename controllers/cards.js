@@ -1,28 +1,77 @@
-const path = require('path');
 const CardModel = require('../models/card');
 
 const getCards = (req, res) => {
   CardModel.find({})
-  .then((cards) => res.status(200).send(cards))
-  .catch((err) => res.status(500).send(err))
-}
+    .then((cards) => res.status(200).send(cards))
+    .catch(() => res.status(500).send({
+      message: 'Ошибка на сервере',
+    }));
+};
 
 const createCard = (req, res) => {
-  console.log(...req.body);
   CardModel.create({ ...req.body })
-  .then(card => {
-    res.status(200).send(card);
-  })
-  .catch(err => {
-    if(err.name === 'ValidationError') {
-      if (err.errors && err.errors.name && err.errors.name.kind === 'minlength') {
+    .then((newCard) => res.status(200).send(newCard))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Введите имя от 2 до 30 символов' });
-      } else {
-        res.status(400).send({ message: 'Неправильные данные' });
+        return;
       }
-    }
-    res.status(500).send({ message: 'Не удалось создать пользователя' });
-  });
-}
+      res.status(500).send({ message: 'Ошибка на сервере' });
+    });
+};
 
-module.exports = { getCards, createCard };
+const deleteCard = (req, res) => {
+  CardModel.findByIdAndRemove(req.params._id)
+    .then((card) => {
+      if (card) {
+        res.send(card);
+        return;
+      }
+      res.status(404).send({ message: 'Карточка не найдена' });
+    })
+    .catch((error) => res.status(500).send({ message: `Ошибка на сервере: ${error.message}` }));
+};
+
+const likeCard = (req, res) => {
+  CardModel.findByIdAndUpdate(req.params._id,
+    {
+      $addToSet: { likes: req.user._id },
+    },
+    {
+      new: true,
+    })
+    .then((result) => {
+      if (result) {
+        res.send({ data: result });
+        return;
+      }
+      res.status(404).send({ message: 'Карточка не найдена' });
+    })
+    .catch(() => res.status(500).send({ message: 'Ошибка на сервере' }));
+};
+
+const unlikeCard = (req, res) => {
+  CardModel.findByIdAndUpdate(req.params._id,
+    {
+      $pull: { likes: req.user._id },
+    },
+    {
+      new: true,
+    })
+    .then((result) => {
+      if (result) {
+        res.send({ data: result });
+        return;
+      }
+      res.status(404).send({ message: 'Карточка не найдена' });
+    })
+    .catch(() => res.status(500).send({ message: 'Ошибка на сервере' }));
+};
+
+module.exports = {
+  getCards,
+  createCard,
+  deleteCard,
+  likeCard,
+  unlikeCard,
+};
