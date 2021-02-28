@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
   },
   about: {
     type: String,
-    required: true,
+    required: [true, 'Введите пожалуйста описание'],
     minlength: 2,
     maxlength: 30,
   },

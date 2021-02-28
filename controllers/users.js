@@ -7,32 +7,30 @@ const getUsers = (req, res) => {
 };
 
 const getUser = (req, res) => {
-  console.log(req.params);
   UserModel.findById(req.params._id)
-    .then((user) => {
-      if (!user) {
-        return res.status(404).send({ message: 'Нет пользователя с таким id' });
+    .orFail(new Error('NotFound'))
+    .then((user) => res.status(200).send(user))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Некорректный id пользователя' });
+      } else if (err.message === 'NotFound') {
+        res.status(404).send({ message: 'Нет пользователя с таким id' });
+      } else {
+        res.status(500).send({ message: 'Ошибка на сервере' });
       }
-      return res.status(200).send(user);
-    })
-    .catch(() => res.status(500).send({ message: 'Файл не найден' }));
+    });
 };
 
 const createUser = (req, res) => {
   UserModel.create({ ...req.body })
-    .then((user) => {
-      console.log(user);
-      res.status(200).send(user);
-    })
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
+      console.log(req);
       if (err.name === 'ValidationError') {
-        if (err.errors && err.errors.name && err.errors.name.kind === 'minlength') {
-          res.status(400).send({ message: 'Введите имя от 2 до 30 символов' });
-        } else {
-          res.status(400).send({ message: 'Неправильные данные' });
-        }
+        res.status(400).send({ message: 'Переданы некорректные данные' });
+        return;
       }
-      res.status(500).send({ message: 'Не удалось создать пользователя' });
+        res.status(500).send({ message: 'Ошибка на сервере' });
     });
 };
 
@@ -47,16 +45,18 @@ const updateUser = (req, res) => {
       new: true,
       runValidators: true,
     })
-    .then((result) => {
-      console.log(req.body);
-      res.send(result);
-    })
-    .catch((error) => {
-      if (error.name === 'ValidationError') {
-        res.status(400).send({ message: 'Неправильные данные' });
-        return;
+    .orFail(new Error('NotFound'))
+    .then((result) => res.status(200).send(result))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Некорректные данные' });
+      } else if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Некорректный id пользователя' });
+      } else if (err.message === 'NotFound') {
+        res.status(404).send({ message: 'Нет карточки с таким id' });
+      } else {
+        res.status(500).send({ message: 'Ошибка на сервере' });
       }
-      res.status(500).send({ message: 'Ошибка на сервере' });
     });
 };
 
@@ -70,13 +70,18 @@ const updateAvatar = (req, res) => {
       new: true,
       runValidators: true,
     })
-    .then((result) => res.send({ data: result }))
-    .catch((error) => {
-      if (error.name === 'ValidationError') {
-        res.status(400).send({ message: 'Неправильные данные' });
-        return;
+    .orFail(new Error('NotFound'))
+    .then((result) => res.status(200).send(result))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Некорректные данные' });
+      } else if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Некорректный id пользователя' });
+      } else if (err.message === 'NotFound') {
+        res.status(404).send({ message: 'Нет карточки с таким id' });
+      } else {
+        res.status(500).send({ message: 'Ошибка на сервере' });
       }
-      res.status(500).send({ message: 'Ошибка на сервере' });
     });
 };
 
