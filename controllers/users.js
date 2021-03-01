@@ -30,7 +30,7 @@ const createUser = (req, res) => {
         res.status(400).send({ message: 'Переданы некорректные данные' });
         return;
       }
-        res.status(500).send({ message: 'Ошибка на сервере' });
+      res.status(500).send({ message: 'Ошибка на сервере' });
     });
 };
 
