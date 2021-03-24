@@ -1,7 +1,8 @@
 const UserModel = require('../models/user');
+const { isAuthorized } = require('../utils/jwt');
 
 const getUsers = (req, res) => {
-  UserModel.find({})
+  return UserModel.find({})
     .then((users) => res.status(200).send(users))
     .catch((err) => res.status(500).send(err));
 };
